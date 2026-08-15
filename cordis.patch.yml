@@ -1,0 +1,9 @@
+# Distributable layer: DSH resolves the installed package by name.
+- insert:
+    - id: arena
+      name: dsh-arena
+      config:
+        enabled: true
+        runsRoot: '.dsh-arena/runs'
+        dataRoot: '.dsh-arena'
+        persistencePath: 'state.json'

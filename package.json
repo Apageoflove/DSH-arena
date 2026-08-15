@@ -1,0 +1,44 @@
+{
+  "name": "dsh-arena",
+  "version": "0.1.15",
+  "private": true,
+  "type": "module",
+  "description": "Local-first experiment and evaluation workbench for DeepSeek Harness.",
+  "license": "MIT",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib/**",
+    "scripts/**",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [],
+      "immediately": true
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/schemastery": "^3.18.1"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "prepare": "npm run build",
+    "test": "npm run build && node --experimental-strip-types --test tests/*.test.ts tests/*.test.mjs",
+    "check": "node --experimental-strip-types --check src/core/arena.ts && node --experimental-strip-types --check src/core/experiment.ts && node --experimental-strip-types --check src/core/gates.ts && node --experimental-strip-types --check src/core/orchestrator.ts && node --experimental-strip-types --check src/core/pareto.ts && node --experimental-strip-types --check src/core/persistence.ts && node --experimental-strip-types --check src/core/redact.ts && node --experimental-strip-types --check src/core/report.ts && node --experimental-strip-types --check src/core/snapshot.ts && node --experimental-strip-types --check src/dsh/plugin.ts && node --check src/dsh/client.mjs && node --check scripts/build.mjs && node --check lib/index.js && node --check lib/client.js"
+  }
+}

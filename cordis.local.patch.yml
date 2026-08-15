@@ -1,0 +1,9 @@
+# Local source overlay for development in this fixed workspace.
+- insert:
+    - id: arena
+      name: 'E:/agent/DSH_UI/dsh-arena/src/dsh/plugin.ts'
+      config:
+        enabled: true
+        runsRoot: '.dsh-arena/runs'
+        dataRoot: '.dsh-arena'
+        persistencePath: 'state.json'

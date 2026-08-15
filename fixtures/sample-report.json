@@ -1,0 +1,37 @@
+{
+  "experiment": {
+    "experimentId": "demo-20260815",
+    "task": "Summarize this repository and identify its main packages.",
+    "createdAt": "2026-08-15T20:40:00.000Z",
+    "note": "Sample report for the Arena import test"
+  },
+  "runs": [
+    {
+      "runId": "run-001",
+      "candidate": { "provider": "deepseek", "model": "deepseek-chat" },
+      "state": "completed",
+      "gateStatus": "passed",
+      "metrics": { "quality": 0.92, "durationMs": 42000, "tokens": 5123, "cost": 0.012 },
+      "auditAlerts": []
+    },
+    {
+      "runId": "run-002",
+      "candidate": { "provider": "zai-coding-cn", "model": "GLM-5.3" },
+      "state": "completed",
+      "gateStatus": "failed",
+      "metrics": { "quality": 0.71, "durationMs": 38000, "tokens": 4800, "cost": 0.0 },
+      "auditAlerts": ["gate: verification step did not pass"]
+    },
+    {
+      "runId": "run-003",
+      "candidate": { "provider": "wawazz", "model": "claude-sonnet-5" },
+      "state": "completed",
+      "gateStatus": "passed",
+      "metrics": { "quality": 0.88, "durationMs": 55000, "tokens": 6001, "cost": 0.31 },
+      "auditAlerts": []
+    }
+  ],
+  "paretoRunIds": ["run-001", "run-003"],
+  "winnerRunId": "run-001",
+  "auditAlerts": []
+}
