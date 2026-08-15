@@ -3,7 +3,8 @@
 import Schema from '@deepseek-ai/schemastery';
 import type { Context } from '@deepseek-ai/cordis';
 import { spawn } from 'node:child_process';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { readFileSync, statSync, writeFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ArenaStore } from '../core/arena.ts';
@@ -100,17 +101,36 @@ export function apply(ctx: Context, config: Config = {}): void {
 
   // Per-candidate kill switch: expensive models only join an experiment when
   // enabled here. The CLI executor skips disabled candidates entirely.
+  // The whole policy (master + per-model) lives in ONE file under the user's
+  // home so the browser version and the desktop app share identical state:
+  // toggling the master never touches the model switches, and a restart on
+  // either host does not reset them.
   const candidatePolicy = new Map<string, boolean>();
-  const policyFile = join(dataRoot, 'candidate-policy.json');
-  try {
-    const raw = readFileSync(policyFile, 'utf8');
-    for (const [key, value] of Object.entries(JSON.parse(raw) as Record<string, unknown>)) {
-      if (typeof value === 'boolean') candidatePolicy.set(key, value);
-    }
-  } catch { /* missing or malformed policy file: every candidate starts enabled */ }
-  const persistCandidatePolicy = (): void => {
-    try { writeFileSync(policyFile, JSON.stringify(Object.fromEntries(candidatePolicy), null, 2)); } catch { /* best effort */ }
+  const policyFile = join(homedir(), '.dsh', 'arena-policy.json');
+  let policyMtime = 0;
+  const loadPolicyFile = (): void => {
+    try {
+      const mtime = statSync(policyFile).mtimeMs;
+      if (mtime === policyMtime) return;
+      const raw = readFileSync(policyFile, 'utf8');
+      const parsed = JSON.parse(raw) as { executionPolicy?: string; candidates?: Record<string, unknown> };
+      if (parsed.executionPolicy === 'allowed' || parsed.executionPolicy === 'blocked') executionPolicy = parsed.executionPolicy;
+      if (parsed.candidates && typeof parsed.candidates === 'object') {
+        for (const [key, value] of Object.entries(parsed.candidates)) {
+          if (typeof value === 'boolean') candidatePolicy.set(key, value);
+        }
+      }
+      policyMtime = mtime;
+    } catch { /* missing or malformed policy file: keep the current state */ }
   };
+  const persistPolicy = (): void => {
+    try {
+      const file = JSON.stringify({ executionPolicy, candidates: Object.fromEntries(candidatePolicy) }, null, 2);
+      writeFileSync(policyFile, file);
+      policyMtime = statSync(policyFile).mtimeMs;
+    } catch { /* best effort */ }
+  };
+  loadPolicyFile();
   const candidateKey = (provider: string | undefined, model: string | undefined): string => `${provider ?? ''}:${model ?? ''}`;
   const candidateList = (): { provider: string; model: string; enabled: boolean }[] =>
     [...candidatePolicy].map(([key, enabled]) => {
@@ -173,12 +193,14 @@ export function apply(ctx: Context, config: Config = {}): void {
             return;
           }
           setExecutionPolicy(payload.executionPolicy);
+          persistPolicy();
           json(res, { ok: true, executionPolicy });
         } catch (error) {
           json(res, { ok: false, error: error instanceof Error ? error.message : String(error) }, 400);
         }
         return;
       }
+      loadPolicyFile();
       json(res, { ok: true, executionPolicy, running });
     }});
     webServer.register({ kind: 'exact', path: '/plugins/arena/start', handler: async (req: { on?: (event: string, cb: (chunk: Buffer) => void) => void }, res: Parameters<typeof json>[0]) => {
@@ -211,13 +233,14 @@ export function apply(ctx: Context, config: Config = {}): void {
             return;
           }
           candidatePolicy.set(candidateKey(payload.provider, payload.model), payload.enabled);
-          persistCandidatePolicy();
+          persistPolicy();
           json(res, { ok: true, candidates: candidateList() });
         } catch (error) {
           json(res, { ok: false, error: error instanceof Error ? error.message : String(error) }, 400);
         }
         return;
       }
+      loadPolicyFile();
       json(res, { ok: true, candidates: candidateList() });
     }});
     webServer.register({ kind: 'exact', path: '/plugins/arena/snapshot', handler: async (_req: unknown, res: Parameters<typeof json>[0]) => {
@@ -252,7 +275,7 @@ export function apply(ctx: Context, config: Config = {}): void {
             if (!candidatePolicy.has(key)) candidatePolicy.set(key, true);
           }
           store.start(payload.experiment);
-          persistCandidatePolicy();
+          persistPolicy();
         }
         if (payload.run) {
           store.record(payload.run);

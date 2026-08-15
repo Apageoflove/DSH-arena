@@ -1,6 +1,6 @@
 {
   "name": "dsh-arena",
-  "version": "0.1.15",
+  "version": "0.1.18",
   "private": true,
   "type": "module",
   "description": "Local-first experiment and evaluation workbench for DeepSeek Harness.",

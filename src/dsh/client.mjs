@@ -301,7 +301,7 @@ window.__ModuleLoader__.load({
                 await fetch('/plugins/arena/candidates', {
                   method: 'POST',
                   headers: { 'content-type': 'application/json' },
-                  body: JSON.stringify({ provider: group.id, model: model.id, enabled: true }),
+                  body: JSON.stringify({ provider: group.id, model: model.id, enabled: false }),
                 });
                 known.add(`${group.id}:${model.id}`);
               } catch { /* keep going on individual failures */ }
