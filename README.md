@@ -94,6 +94,7 @@ host 服务暴露的操作都是显式的：
 `npm test` 在 Node 24 上直接跑，不需要装运行时依赖。
 
 - 核心不会自动执行生成的 DSH 命令，不会删 worktree，git 参数一律用数组构建
+- 实验 runner 执行的是你自己配置的候选命令（`--dsh`）——Windows 上 pnpm/dsh 是 `.cmd` 启动器，必须经命令解释器拉起；任务文本拼入命令前已做引号转义。信任边界：跑的是你自己机器上、你自己写的命令
 - 导出 JSON/JSONL/Markdown 前，按字段名和值对内联的 authorization / token / key / secret / password / cookie 做脱敏
 
 ## 当前状态

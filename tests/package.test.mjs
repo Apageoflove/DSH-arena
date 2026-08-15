@@ -16,10 +16,21 @@ test('package declares distributable DSH host, client, and bundle patch entries'
   assert.doesNotMatch(patch, /E:\/agent/);
 });
 
-test('built browser entry imports without DSH runtime dependencies', async () => {
-  const client = await import('../lib/client.js');
-  assert.equal(typeof client.apply, 'function');
-  assert.equal(typeof client.parseArenaReport, 'function');
+test('built browser entry registers through the host module loader without DSH runtime dependencies', async () => {
+  // The browser half is a lazy-CJS bundle: it registers with the
+  // host-provided window.__ModuleLoader__ and the factory returns the plugin
+  // exports. Importing it in Node must not require any DSH runtime package.
+  let registered;
+  globalThis.window = { __ModuleLoader__: { load: (spec) => { registered = spec; } } };
+  try {
+    await import('../lib/client.js');
+    assert.ok(registered, 'client should register with the host loader');
+    const exportsObj = registered.factory();
+    assert.equal(typeof exportsObj.apply, 'function');
+    assert.equal(typeof exportsObj.parseArenaReport, 'function');
+  } finally {
+    delete globalThis.window;
+  }
 });
 
 test('built host entry retains declared peer imports for DSH to provide', async () => {

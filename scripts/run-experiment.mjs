@@ -12,7 +12,7 @@
  *     --task "Answer with exactly: OK" \
  *     --candidates "deepseek:deepseek-chat,zai-coding-cn:GLM-5.3,wawazz:claude-sonnet-5" \
  *     --cwd "E:/agent/DSH" \
- *     --base-url "http://127.0.0.1:3080"
+ *     --base-url "http://localhost:3080"
  *
  * The per-candidate model override uses `dsh --profile headless --patch`,
  * targeting the composed `agent-default-model` entry; the headless profile
@@ -29,7 +29,7 @@ import { createReport } from '../lib/core/report.js'
 const MAX_OUTPUT_BYTES = 64 * 1024
 
 function parseArgs(argv) {
-  const args = { task: undefined, candidates: undefined, cwd: process.cwd(), baseUrl: 'http://127.0.0.1:3080', timeoutMs: 300_000, out: 'arena-report.json', dsh: 'pnpm dsh', dshCommit: 'source' }
+  const args = { task: undefined, candidates: undefined, cwd: process.cwd(), baseUrl: 'http://localhost:3080', timeoutMs: 300_000, out: 'arena-report.json', dsh: 'pnpm dsh', dshCommit: 'source' }
   for (let i = 0; i < argv.length; i++) {
     const flag = argv[i]
     const value = () => argv[++i]
@@ -69,7 +69,10 @@ function runCandidate(args, candidate, task) {
   const line = `${command} ${rest.join(' ')} --profile headless --patch ${JSON.stringify(patchFile)} ${quotedTask}`
   return new Promise((resolvePromise) => {
     const started = Date.now()
-    const child = spawn(line, { cwd: args.cwd, shell: true, windowsHide: true })
+    // Windows: pnpm/dsh are .cmd shims, so the command needs the shell.
+  // `line` is the user's own --dsh command; the task text is JSON-quoted
+  // above, so it cannot break out of the command line.
+  const child = spawn(line, { cwd: args.cwd, shell: true, windowsHide: true })
     let output = ''
     let bytes = 0
     let truncated = false

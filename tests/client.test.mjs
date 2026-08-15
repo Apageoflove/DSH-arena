@@ -2,7 +2,17 @@
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { apply, createArenaViewModel, parseArenaReport, resolveArenaViewModel } from '../src/dsh/client.mjs';
+
+// The browser half registers with the host loader; materialize its exports
+// the same way DSH's web shell does.
+let exportsObj;
+globalThis.window = { __ModuleLoader__: { load: (spec) => { exportsObj = spec.factory(); } } };
+try {
+  await import('../src/dsh/client.mjs');
+} finally {
+  delete globalThis.window;
+}
+const { apply, createArenaViewModel, parseArenaReport, resolveArenaViewModel } = exportsObj;
 
 test('client import is safe without a browser and exposes an empty view model', () => {
   assert.equal(typeof apply(), 'function');

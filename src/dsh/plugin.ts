@@ -130,7 +130,7 @@ export function apply(ctx: Context, config: Config = {}): void {
     if (task.length > 4000) return { ok: false, error: 'task too long (max 4000 chars)' };
     const port = (webServer as { port?: number } | undefined)?.port;
     if (typeof port !== 'number') return { ok: false, error: 'webServer port unavailable' };
-    const child = spawn(process.execPath, [runnerScript, '--base-url', `http://127.0.0.1:${port}`, '--task', task, '--cwd', process.cwd()], {
+    const child = spawn(process.execPath, [runnerScript, '--base-url', `http://localhost:${port}`, '--task', task, '--cwd', process.cwd()], {
       stdio: ['ignore', 'pipe', 'pipe'],
       windowsHide: true,
     });
