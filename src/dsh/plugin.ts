@@ -193,6 +193,10 @@ export function apply(ctx: Context, config: Config = {}): void {
             return;
           }
           setExecutionPolicy(payload.executionPolicy);
+          // The master switch is the power bar for the candidate bank: OFF
+          // locks every model off, ON re-arms them all. Individual switches
+          // then stay freely controllable while the master is ON.
+          for (const key of candidatePolicy.keys()) candidatePolicy.set(key, payload.executionPolicy === 'allowed');
           persistPolicy();
           json(res, { ok: true, executionPolicy });
         } catch (error) {
