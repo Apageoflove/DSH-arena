@@ -1,10 +1,14 @@
 {
   "name": "dsh-arena",
-  "version": "0.1.19",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "description": "Local-first experiment and evaluation workbench for DeepSeek Harness.",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Apageoflove/DSH-arena.git"
+  },
   "main": "./lib/index.js",
   "exports": {
     ".": "./lib/index.js",
@@ -26,6 +30,13 @@
       "platform": "web",
       "inject": [],
       "immediately": true
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.1.0-rc.8": "unknown",
+        "0.1.1-rc.1": "unknown",
+        "0.1.1-rc.2": "unknown"
+      }
     }
   },
   "engines": {
@@ -37,7 +48,6 @@
   },
   "scripts": {
     "build": "node scripts/build.mjs",
-    "prepare": "npm run build",
     "test": "npm run build && node --experimental-strip-types --test tests/*.test.ts tests/*.test.mjs",
     "check": "node --experimental-strip-types --check src/core/arena.ts && node --experimental-strip-types --check src/core/experiment.ts && node --experimental-strip-types --check src/core/gates.ts && node --experimental-strip-types --check src/core/orchestrator.ts && node --experimental-strip-types --check src/core/pareto.ts && node --experimental-strip-types --check src/core/persistence.ts && node --experimental-strip-types --check src/core/redact.ts && node --experimental-strip-types --check src/core/report.ts && node --experimental-strip-types --check src/core/snapshot.ts && node --experimental-strip-types --check src/dsh/plugin.ts && node --check src/dsh/client.mjs && node --check scripts/build.mjs && node --check lib/index.js && node --check lib/client.js"
   }

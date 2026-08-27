@@ -51,7 +51,7 @@ pnpm dsh --profile arena web
 不想走源码目录安装的话，先 `npm pack` 打出本地 tgz，再直接 add 那个文件：
 
 ```powershell
-pnpm dsh plugin --profile arena add dsh-arena-0.1.15.tgz
+pnpm dsh plugin --profile arena add dsh-arena-0.2.0.tgz
 ```
 
 `cordis.patch.yml` 是发布用的补丁，解析为 `name: dsh-arena`，里面没有本机绝对路径。
@@ -96,4 +96,3 @@ host 服务暴露的操作都是显式的：
 - 核心不会自动执行生成的 DSH 命令，不会删 worktree，git 参数一律用数组构建
 - 实验 runner 执行的是你自己配置的候选命令（`--dsh`）——Windows 上 pnpm/dsh 是 `.cmd` 启动器，必须经命令解释器拉起；任务文本拼入命令前已做引号转义。信任边界：跑的是你自己机器上、你自己写的命令
 - 导出 JSON/JSONL/Markdown 前，按字段名和值对内联的 authorization / token / key / secret / password / cookie 做脱敏
-
