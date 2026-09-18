@@ -43,15 +43,23 @@ npm run build
 然后在官方 DeepSeek Harness 检出目录里执行（或把 `pnpm dsh` 换成全局安装的 `dsh` 命令）：
 
 ```powershell
-pnpm dsh plugin --profile arena add <本目录路径>
-pnpm dsh --profile arena --dump-config
-pnpm dsh --profile arena web
+pnpm dsh plugin --profile web add <本目录路径>
+pnpm dsh --profile web --dump-config
+pnpm dsh --profile web web
 ```
+
+装到 `web` profile 后，浏览器访问和 DeepSeek Harness Desktop 桌面端都能看到——桌面端管理的就是这个 profile 的服务，不用装两遍。
 
 不想走源码目录安装的话，先 `npm pack` 打出本地 tgz，再直接 add 那个文件：
 
 ```powershell
-pnpm dsh plugin --profile arena add dsh-arena-0.2.0.tgz
+pnpm dsh plugin --profile web add dsh-arena-0.2.1.tgz
+```
+
+装完可以用 `pnpm dsh --profile web --dump-config` 查一下，输出里有 `# == dsh-arena` 就说明装上了。卸载：
+
+```powershell
+pnpm dsh plugin --profile web remove dsh-arena
 ```
 
 `cordis.patch.yml` 是发布用的补丁，解析为 `name: dsh-arena`，里面没有本机绝对路径。
