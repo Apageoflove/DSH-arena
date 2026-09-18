@@ -45,7 +45,7 @@ npm run build
 ```powershell
 pnpm dsh plugin --profile web add <本目录路径>
 pnpm dsh --profile web --dump-config
-pnpm dsh --profile web web
+pnpm dsh web
 ```
 
 装到 `web` profile 后，浏览器访问和 DeepSeek Harness Desktop 桌面端都能看到——桌面端管理的就是这个 profile 的服务，不用装两遍。
